@@ -26,7 +26,7 @@ Pastikan Anda memiliki lingkungan yang sesuai untuk menjalankan dashboard ini. B
 
 Ikuti langkah-langkah berikut untuk menjalankan dashboard ini di sistem Anda:
 
-1. **Clone atau Unduh Berkas**
+1. **Unduh Berkas**
    Jika belum memiliki berkas, Anda bisa mengunduhnya atau melakukan clone dari repository ini.
 
 2. **Instalasi Library**
