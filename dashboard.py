@@ -1,13 +1,18 @@
-import streamlit as st
+import zipfile
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-
+import streamlit as st
 
 @st.cache_data
 def load_data():
-    data_harian = pd.read_csv("day.csv", parse_dates=["dteday"])
+    zip_path = "Bike-sharing-dataset.zip"  # Sesuaikan dengan lokasi file ZIP
+    csv_filename = "day.csv"  # Nama file di dalam ZIP
+    
+    with zipfile.ZipFile(zip_path, 'r') as z:
+        with z.open(csv_filename) as f:
+            data_harian = pd.read_csv(f, parse_dates=["dteday"])
+    
     return data_harian
+
 
 data_harian = load_data()
 
