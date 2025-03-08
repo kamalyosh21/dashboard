@@ -1,3 +1,4 @@
+import seaborn as sns
 import matplotlib.pyplot as plt
 import zipfile
 import pandas as pd
