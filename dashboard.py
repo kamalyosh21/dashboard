@@ -1,57 +1,55 @@
-import seaborn as sns
-import matplotlib.pyplot as plt
-import zipfile
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 @st.cache_data
 def load_data():
-    zip_path = "Bike-sharing-dataset.zip"  # Sesuaikan dengan lokasi file ZIP
-    csv_filename = "day.csv"  # Nama file di dalam ZIP
-    
-    with zipfile.ZipFile(zip_path, 'r') as z:
-        with z.open(csv_filename) as f:
-            data_harian = pd.read_csv(f, parse_dates=["dteday"])
-    
-    return data_harian
-
+    data = pd.read_csv("day.csv", parse_dates=["dteday"])
+    data["season"] = data["season"].map({1: "Winter", 2: "Spring", 3: "Summer", 4: "Fall"})
+    return data
 
 data_harian = load_data()
 
 
-st.title("📊 Dashboard Analisis Penyewaan Sepeda 🚴")
+st.sidebar.header("Filter Data")
+selected_season = st.sidebar.selectbox("Pilih Musim:", ["All"] + list(data_harian["season"].unique()))
 
 
-st.subheader("🔍 Korelasi Antar Variabel")
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.heatmap(data_harian.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
-st.pyplot(fig)
+if selected_season != "All":
+    filtered_data = data_harian[data_harian["season"] == selected_season]
+else:
+    filtered_data = data_harian
 
 
+if filtered_data.empty:
+    st.warning(f"Tidak ada data untuk musim {selected_season}. Pilih musim lain.")
+    st.stop()
 
 
-st.subheader("📅 Tren Penyewaan Sepeda Harian")
-fig, ax = plt.subplots(figsize=(12, 5))
-sns.lineplot(x=data_harian["dteday"], y=data_harian["cnt"], ax=ax)
-plt.xticks(rotation=45)
-plt.xlabel("Tanggal")
-plt.ylabel("Jumlah Penyewaan")
-plt.title("Tren Penyewaan Sepeda Harian")
-st.pyplot(fig)
+st.subheader(f"Distribusi Penyewaan Sepeda di {selected_season}")
 
-
-st.subheader("⛅ Pengaruh Cuaca terhadap Penyewaan Sepeda")
 fig, ax = plt.subplots(figsize=(8, 5))
-sns.boxplot(x="weathersit", y="cnt", data=data_harian, ax=ax)
+sns.histplot(filtered_data["cnt"], bins=20, kde=True, color="blue", ax=ax)
+plt.xlabel("Jumlah Penyewaan Sepeda")
+plt.ylabel("Frekuensi")
+st.pyplot(fig)
+
+
+
+st.subheader(f"Pengaruh Cuaca terhadap Penyewaan Sepeda - {selected_season if selected_season != 'All' else 'Semua Musim'}")
+fig, ax = plt.subplots(figsize=(8, 5))
+sns.boxplot(x="weathersit", y="cnt", data=filtered_data, ax=ax)
 plt.xlabel("Kondisi Cuaca")
 plt.ylabel("Jumlah Penyewaan")
-plt.title("Pengaruh Cuaca terhadap Penyewaan Sepeda")
 st.pyplot(fig)
 
-st.markdown(
-    """
-    ✅ **Insight:**  
-    - Jumlah penyewaan sepeda cenderung lebih rendah di musim dingin dibandingkan musim lainnya.  
-    - Cuaca sangat berpengaruh terhadap jumlah penyewaan sepeda. Saat cuaca cerah, jumlah penyewaan meningkat, sedangkan saat hujan atau berkabut, penyewaan cenderung turun drastis.
-    """
-)
+
+st.markdown("### **Insight dari Data:**")
+total_winter = data_harian[data_harian["season"] == "Winter"]["cnt"].sum()
+total_all = data_harian["cnt"].sum()
+winter_percentage = (total_winter / total_all) * 100
+
+st.write(f"- **Penyewaan sepeda di musim dingin**: {total_winter} penyewaan, sekitar **{winter_percentage:.2f}%** dari total penyewaan sepanjang tahun.")
+st.write("- **Cuaca sangat mempengaruhi jumlah penyewaan sepeda**. Saat cuaca cerah, penyewaan meningkat, sedangkan saat hujan atau berkabut, penyewaan menurun drastis.")
+
