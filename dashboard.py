@@ -6,13 +6,7 @@ import seaborn as sns
 @st.cache_data(show_spinner=False)
 def load_data():
     data = pd.read_csv("day.csv", parse_dates=["dteday"])
-    data["season"] = data["season"].map({1: "Musim Dingin", 2: "Musim Semi", 3: "Musim Panas", 4: "Musim Gugur"})
-    data["weathersit"] = data["weathersit"].map({
-        1: "Cerah",
-        2: "Berawan",
-        3: "Hujan Ringan",
-        4: "Hujan Deras/Badai"
-    })
+    data["season"] = data["season"].map({1: "Musim Semi", 2: "Musim Panas", 3: "Musim Gugur", 4: "Musim Dingin"})
     return data
 
 data_harian = load_data()
@@ -37,18 +31,19 @@ plt.xlabel("Jumlah Penyewaan Sepeda")
 plt.ylabel("Frekuensi")
 st.pyplot(fig)
 
-st.subheader(f"Pengaruh Cuaca terhadap Penyewaan Sepeda - {selected_season if selected_season != 'All' else 'Semua Musim'}")
+ 
+st.subheader(f"Pengaruh Musim terhadap Penyewaan Sepeda - {selected_season if selected_season != 'All' else 'Semua Musim'}")
+
 fig, ax = plt.subplots(figsize=(8, 5))
-sns.boxplot(x="weathersit", y="cnt", data=filtered_data, ax=ax)
-plt.xlabel("Kondisi Cuaca")
-plt.ylabel("Jumlah Penyewaan Sepeda")
+musim_counts = filtered_data.groupby("season")["cnt"].mean()  
+sns.barplot(x=musim_counts.index, y=musim_counts.values, palette="Oranges", ax=ax)
+
+plt.xlabel("Musim")
+plt.ylabel("Rata-rata Jumlah Penyewaan")
+plt.title("Pengaruh Musim terhadap Penyewaan Sepeda")
 st.pyplot(fig)
 
+
 st.markdown("### **Insight dari Data:**")
-total_winter = data_harian[data_harian["season"] == "Winter"]["cnt"].sum()
-total_all = data_harian["cnt"].sum()
-winter_percentage = (total_winter / total_all) * 100
-
-
 st.write("- **Penyewaan sepeda di musim dingin: 471348 penyewaan, sekitar 14.32% dari total penyewaan sepanjang tahun..**")
 st.write("  - **Cuaca sangat mempengaruhi jumlah penyewaan sepeda. Saat cuaca cerah, penyewaan meningkat, sedangkan saat hujan atau berkabut, penyewaan menurun drastis**")
