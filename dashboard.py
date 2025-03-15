@@ -23,7 +23,7 @@ if filtered_data.empty:
     st.warning(f"Tidak ada data untuk musim {selected_season}. Pilih musim lain.")
     st.stop()
 
-st.subheader(f"Distribusi Penyewaan Sepeda di {selected_season}")
+st.subheader(f"1. Distribusi Penyewaan Sepeda di {selected_season}")
 
 fig, ax = plt.subplots(figsize=(8, 5))
 sns.histplot(filtered_data["cnt"], bins=20, kde=True, color="blue", ax=ax)
@@ -32,7 +32,7 @@ plt.ylabel("Frekuensi")
 st.pyplot(fig)
 
  
-st.subheader(f"Pengaruh Musim terhadap Penyewaan Sepeda - {selected_season if selected_season != 'All' else 'Semua Musim'}")
+st.subheader(f"2. Pengaruh Musim terhadap Penyewaan Sepeda - {selected_season if selected_season != 'All' else 'Semua Musim'}")
 
 fig, ax = plt.subplots(figsize=(8, 5))
 musim_counts = filtered_data.groupby("season")["cnt"].mean()  
